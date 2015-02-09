@@ -22,10 +22,10 @@ qtlpeaks=as.character(qtlpeak[,1])
 
 n=dim(tfdata)[1]
 result=data.frame(tf=tfs,
-		Peaks_with_thisTF_within2kb=NA,
-		QTLPeaks_with_thisTF_within2kb=NA,
-		QTLPeaks=length(qtlpeaks),
-		TotalPeaks_with_anyTF_within2kb=n,
+		A=NA,
+		Overlap=NA,
+		B=length(qtlpeaks),
+		Total=n,
 		enrichment=NA,
 		enrichment_p=NA,
 		confLow=NA,confHigh=NA)
@@ -33,14 +33,13 @@ rownames(result)=tfs
 for (tf in tfs){
     tf_peaks=as.character(tfdata[which(as.numeric(as.character(tfdata[,tf]))>0),'peak'])
     qtl_peaks_with_tf=intersect(tf_peaks,qtlpeaks)
-    nottf_notqtl=
     m=data.frame(TF=c(length(qtl_peaks_with_tf),length(tf_peaks)-length(qtl_peaks_with_tf)),
 		notTF=c(length(qtlpeaks)-length(qtl_peaks_with_tf),n-length(tf_peaks)-length(qtlpeaks)+length(qtl_peaks_with_tf)))
     ftest=fisher.test(m)
     result[tf,'enrichment']=ftest$estimate
     result[tf,'enrichment_p']=ftest$p.value
-    result[tf,'Peaks_with_thisTF_within2kb']=length(tf_peaks)
-    result[tf,'QTLPeaks_with_thisTF_within2kb']=length(qtl_peaks_with_tf)
+    result[tf,'A']=length(tf_peaks)
+    result[tf,'Overlap']=length(qtl_peaks_with_tf)
     result[tf,'confLow']=ftest$conf.int[1]
     result[tf,'confHigh']=ftest$conf.int[2]
 }
@@ -73,6 +72,9 @@ res.cur$TFname=factor(res.cur$TFname,levels=res.cur$TFname[order(res.cur$enrichm
 res.cur=cbind(res.cur,sig_after_BHcorrection=(as.numeric(as.character(res.cur$BH))<=0.05))
 print(ggplot(res.cur, aes(y=enrichment, x=TFname,col=sig_after_BHcorrection)) + coord_flip()+geom_point()+geom_errorbar(aes(ymax = res.cur$confLow, 
 ymin=res.cur$confHigh))+ylim(0,4)+
+ggtitle(basename(out)))
+print(ggplot(res.cur, aes(y=enrichment, x=TFname,col=sig_after_BHcorrection)) + coord_flip()+geom_point()+geom_errorbar(aes(ymax = res.cur$confLow, 
+ymin=res.cur$confHigh))+ylim(0,20)+
 ggtitle(basename(out)))
 dev.off()
 
