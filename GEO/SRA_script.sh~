@@ -1,0 +1,16 @@
+
+software/sratoolkit/sratoolkit.2.3.4-2-ubuntu64/bin/fastq-dump
+#sra_name=SRR998334.sra
+#sra_path='ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX/SRX356/SRX356614/SRR998334/SRR998334.sra'
+#outdir=/srv/gs1/projects/kundaje/oursu/histoneQTL_Oana_analysis/results/2013-12-17/results/
+
+sra_path=$1
+outdir=$2
+
+sra_name=$(basename ${sra_path})
+
+download_sra='wget --directory-prefix '$outdir' '$sra_path
+dump_gm19099=$fastq_dump_cmd' --split-3 --outdir '$outdir' '$outdir$sra_name
+
+eval $download_sra
+eval $dump_gm19099
