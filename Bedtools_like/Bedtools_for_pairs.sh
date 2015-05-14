@@ -1,23 +1,68 @@
-#1=output script
-#2=interaction
-#3=bed of old coordinates
-#4=bed of new coordinates
-#5=outfile
-#interaction has only the interacting fragments
-TranslateInteraction () {
-	s=$1
-    intfile=$2
-	inbed=$3
-	outbed=$4
-	outfile=$5
-	sourcefile=$6
-	echo "source ${sourcefile}" >> ${s}
-	echo "bedtools intersect -wo -b ${outbed} -a ${inbed} | awk '{print \"chr\"\$1\"_\"\$4\"\t\"\$5\"_\"\$8}' | gzip > ${outfile}_transl" >> ${s}
-	echo "zcat ${intfile} | sort -k1b,1 > ${intfile}_i" >> ${s}
-	echo "zcat ${outfile}_transl | sort -k1b,1 > ${outfile}_transl_t" >> ${s}
-	echo "join -1 1 -2 1 ${intfile}_i ${outfile}_transl_t | sort -k2b,2 | join -1 2 -2 1 - ${outfile}_transl_t | awk '{print \$3\"\t\"\$4\"\t\"\$2\"\t\"\$1}' | gzip > ${outfile}" >> ${s}
+#TODO: write some tests for these
+
+#=====================================================
+#take entries from bedpe and mirror them
+#e.g. for entry (DNA1,DNA2), will get (DNA1,DNA1-|DNA1-DNA2|) and (DNA2,DNA2+|DNA1-DNA2|)
+#TODO: make sure the 2 entries are on the same chromosome
+#TODO: combine files in a nicer way
+#TODO: add slop. the problem is that now i get already <0 values when mirroring, 
+#and I would need to not make the mirror in the first place when this happens, similar when chromosome ends are surpassed
+mirror_bedpe(){
+	local bedpe=$1
+	local out=$2
+	local combineMirrors=$3
+	local CHRSIZES=$4
+
+	combineMirrors=1
+	out=/srv/scratch/oursu/LongRange/NN/test/testMirror
+	bedpe=/srv/scratch/oursu/LongRange/data/HiC/loops/GSE63525_GM12878_primary+replicate_HiCCUPS_looplist.bedpe
+	#split into DNA1>DNA2 and DNA1<DNA2 based on start
+	zcat -f ${bedpe} | \
+	awk -v outfile=${out} '{diff=$3-$5}{if (diff>=0) print $0>outfile"firstEntryAfterSecond.bedpe"}{if (diff<0) print $0>outfile"firstEntryBeforeSecond.bedpe"}'
+	#add appropriate mirror left and right (slop the mirror as it gets created)
+	for f in ${out}firstEntryAfterSecond.bedpe ${out}firstEntryBeforeSecond.bedpe;
+	do
+	 if [ -e ${f} ];
+	 then
+	  if [ ${f} == "${out}firstEntryBeforeSecond.bedpe" ];
+	  then
+	  entry1_chr=1
+	  entry1_start=2
+	  entry1_end=3
+	  entry2_chr=4
+	  entry2_start=5
+	  entry2_end=6
+	  fi
+	  if [ ${f} == "${out}firstEntryAfterSecond.bedpe" ];
+	  then
+	   entry2_chr=1
+	   entry2_start=2
+	   entry2_end=3
+	   entry1_chr=4
+	   entry1_start=5
+	   entry1_end=6
+	  fi
+	  #mirror left
+	  zcat -f ${f} | 
+	  awk -v e1_chr=${entry1_chr} -v e1_start=${entry1_start} -v e1_end=${entry1_end} \
+	  -v e2_chr=${entry2_chr} -v e2_start=${entry2_start} -v e2_end=${entry2_end} \
+	  'function abs(x){return ((x < 0.0) ? -x : x)} {diff=abs($e1_end-$e2_start)}{leftEnd=$e1_start-diff}{leftStart=leftEnd-abs($e2_start-$e2_end)}{print $e1_chr"\t"leftStart"\t"leftEnd"\t"$e1_chr"\t"$e1_start"\t"$e1_end}' > ${f}.mirrorLeft.bedpe
+	  #cat ${f}.mirrorLeft.bedpe | cut -f1-3 | bedtools slop -b 0 -i stdin -g ${CHRSIZES} > ${f}.mirrorLeftSlop
+	  #mirror right
+	  zcat -f ${f} | \
+	  awk -v e1_chr=${entry1_chr} -v e1_start=${entry1_start} -v e1_end=${entry1_end} \
+	  -v e2_chr=${entry2_chr} -v e2_start=${entry2_start} -v e2_end=${entry2_end} \
+	  'function abs(x){return ((x < 0.0) ? -x : x)} {diff=abs($e1_end-$e2_start)}{rightStart=$e2_end+diff}{rightEnd=rightStart+abs($e1_start-$e1_end)}{print $e2_chr"\t"$e2_start"\t"$e2_end"\t"$e2_chr"\t"rightStart"\t"rightEnd}' > ${f}.mirrorRight.bedpe
+	 fi
+	done
+	if [ ${combineMirrors} == 1 ];
+	 then
+	 zcat -f ${out}firstEntry*Second.mirror*.bedpe > ${out}
+	 rm ${out}firstEntry*Second.mirrorLeft.bedpe ${out}firstEntry*Second.mirrorRight.bedpe
+	fi
 }
 
+#=====================================================
 #1=bed file
 #2=bedpe file
 #3=outfile
@@ -26,18 +71,18 @@ TranslateInteraction () {
 #produces a file of overlaps with the following format: 
 #<bedpe entries> <bed file entries> for any windowed overlap
 window_bedpe_with_bed (){
- bed=$1
- bedpe=$2
- out=$3
- w=$4
- columns_chosen=$5 #can be first,second,all (all is default). bedpe order of columns should stay unchanged
+ local bed=$1
+ local bedpe=$2
+ local out=$3
+ local w=$4
+ local columns_chosen=$5 #can be first,second,all (all is default). bedpe order of columns should stay unchanged
 
  echo $bed
  echo $bedpe 
  echo $out
  echo $w
  echo $columns_chosen
- module load bedtools/2.21.0
+ #module load bedtools/2.21.0
  numBedCols=$(awk '{print NF; exit}' ${bed})
  if [ ${columns_chosen} == "first" ] || [ ${columns_chosen} == "all" ];then 
   bedtools window -w ${w} -a ${bedpe} -b ${bed} > ${out}.overlapsCol1.bedpe
@@ -65,13 +110,13 @@ window_bedpe_with_bed (){
 #outtest=/home/oursu/testW
 #window_bedpe_with_bed ${gwas} ${bedpe_file} ${outtest} 0 first
 
-
+#============================================================
 translate_bedpe (){
- bedpe_file=$1
- output_bed=$2
- w=$3
- outname=$4
- keepUntranslated=$5 #keep_untranslated
+ local bedpe_file=$1
+ local output_bed=$2
+ local w=$3
+ local outname=$4
+ local keepUntranslated=$5 #keep_untranslated
 
  #make short bedpe - for now just keep the name, then bed file of the interacting regions
  #TODO: keep all entries from the bedpe
@@ -97,10 +142,6 @@ translate_bedpe (){
  sort | uniq > ${outname}
 }
 
-bedpe_file=/srv/gsfs0/projects/snyder/oursu/histoneQTL/GWAS_hits/QTLs/chr8.DistalQTLs_expandYRILD.bedpe
-outname=/home/oursu/testTranslate
-output_bed=/srv/gsfs0/projects/snyder/oursu/histoneQTL/networks/Data/GeneAnnoJudith.bed
-w=0
 
 
 
