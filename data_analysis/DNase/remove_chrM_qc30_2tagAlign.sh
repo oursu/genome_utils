@@ -6,24 +6,24 @@ usage: `basename $0` options
 Filters out 1) reads not properly paired, 2) unmapped reads and their mates, 3) reads on the M chromosome. Then it converts to the end tagAlign format.
 OPTIONS:
    -h           Show this message and exit
-   --indir DIR  [Required] Input directory.
+   --inbam FILE  [Required] Input bam
    --outdir DIR [Required] Output directory.
    --sample STR [Required] Sample name. Input files are read from <indir>/<sample>.bam and output is written in <outdir>/<sample>.tagAlign.bed.gzip.
    --SE Set to 1 if single end, else set to 0
 EOF
 }
 
-ARGS=`getopt -o "hcns" -l "indir:,outdir:,sample:,SE:" -- "$@"`
+ARGS=`getopt -o "hcns" -l "inbam:,outdir:,sample:,SE:" -- "$@"`
 eval set -- "$ARGS"
 
-INDIR=
+INBAM=
 OUTDIR=
 SAMPLE=
 PROPER_PAIR="-f3 "
 while [ $# -gt 0 ]; do
     case $1 in
     -h) usage; exit;;
-    --indir) INDIR=$2; shift 2;;
+    --inbam) INBAM=$2; shift 2;;
     --outdir) OUTDIR=$2; shift 2;;
     --sample) SAMPLE=$2; shift 2;;
     --SE) SE=$2; shift 2;;
@@ -36,7 +36,7 @@ if [ $# -ne 0 ]; then
     usage; exit 1;
 fi
 
-if [[ -z $INDIR || -z $OUTDIR || -z $SAMPLE ]]; then
+if [[ -z $INBAM || -z $OUTDIR || -z $SAMPLE ]]; then
     usage; exit 1;
 fi
 
@@ -45,9 +45,8 @@ if [[ $SE -eq 1 ]]; then
 fi
 
 script_location=${OUTDIR}/${SAMPLE}_remove_chrM_qc30_2tagAlign_script.sh
-inpref=${INDIR}/${SAMPLE}
 outpref=${OUTDIR}/${SAMPLE}.tagAlign.gz
-mkdir ${OUTDIR}
+mkdir -p ${OUTDIR}
 
-samtools view ${PROPER_PAIR} -q30 -F1548 -h ${inpref}.bam | grep -v chrM | samtools view -Sh - | awk '$4 !="*"{print $0}' | samtools view -S -b - | bamToBed -i stdin | awk 'BEGIN{FS="\t";OFS="\t"}{$4="N"; $5="1000" ; print $0}' | gzip > ${outpref}
+samtools view ${PROPER_PAIR} -q30 -F1548 -h ${INBAM} | grep -v chrM | samtools view -Sh - | awk '$4 !="*"{print $0}' | samtools view -S -b - | bamToBed -i stdin | awk 'BEGIN{FS="\t";OFS="\t"}{$4="N"; $5="1000" ; print $0}' | gzip > ${outpref}
 #qsub -l h_vmem=3G -o ${script_location}.o -e ${script_location}.e ${script_location} 
