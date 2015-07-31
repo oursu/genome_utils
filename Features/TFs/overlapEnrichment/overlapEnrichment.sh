@@ -2,14 +2,14 @@
 #############
 
 OverlapRegionsWithTFBS () {
-	regionfile=$1
-	TFData=$2
-	TFData_fileRegex=$3
-	outdir=$4
-	overlapWindow=$5
-	aggregatedOver=$6
-	out_prefix=$7
-	bashrc=$8
+	local regionfile=$1
+	local TFData=$2
+	local TFData_fileRegex=$3
+	local outdir=$4
+	local overlapWindow=$5
+	local aggregatedOver=$6
+	local out_prefix=$7
+	local bashrc=$8
 	#make outdir if it doesn't exist
 	mkdir -p ${outdir}
 	#go through each TF dataset and compute overlap using bedtools
@@ -33,7 +33,8 @@ OverlapRegionsWithTFBS () {
     	cut -f5 >> ${outname}" >> ${s} 
     	chmod 777 ${s}
     	echo $s
-    	qsub -o ${s}.o -e ${s}.e ${s}	
+    	$s
+    	#qsub -o ${s}.o -e ${s}.e ${s}	
     done
 }
 
