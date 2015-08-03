@@ -1,0 +1,2 @@
+bowtieref=/mnt/data/annotations/indexes/bowtie1_indexes/encodeHg19Male/encodeHg19Male
+bedtoolsgenome = /srv/scratch/oursu/data/alignment/encodeHg19Male/ref.fa.fai

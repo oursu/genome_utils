@@ -1,0 +1,6 @@
+ARGFILE=/srv/scratch/oursu/code/genome_utils/data_analysis/ChIA-PET/mango_argfile
+SRASCRIPT=/srv/scratch/oursu/code/genome_utils/GEO/SRA_script.sh
+
+module add r/3.2.0
+module load bowtie/1.1.1
+module load bedtools/2.16.2
