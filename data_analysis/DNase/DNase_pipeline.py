@@ -130,22 +130,24 @@ def main():
 
             if opts.step=='MACS2':
                 combined_tagAlign=mergedRepldir+'/'+replGroup+'.merged.tagAlign.gz'
-                cmds.append('zcat '+tagAligns+' | gzip > '+combined_tagAlign)
+                cmds.append('zcat -f '+tagAligns+' | gzip > '+combined_tagAlign)
                 cmds.append(macs2(combined_tagAlign,str(int(np.median(fragLenValues))/2),opts.genome,mergedRepldir+'/'+replGroup+'.peaks.narrowPeak'))
                 qsub_a_command('qqqq'.join(cmds),mergedRepldir+'/'+replGroup+'_MACS2.script.sh','qqqq','20G')
 
             if opts.step=='bigwig':
                 #these will be called on the centered data
-                bigwig_from_tagAlign(replGroup,centeredTagAligns,opts.normFactor,opts.binSize,bigwigdir,opts.smooth)            
+                cmds=[]
+                cmds.append('source '+opts.bashrc)
+                bigwig_from_tagAlign(replGroup,centeredTagAligns,opts.normFactor,opts.binSize,bigwigdir,opts.smooth,cmds,opts.chrSizes)            
     
 
 
-def bigwig_from_tagAlign(replGroup,tagAligns,normFactor,binSize,bigwigdir,smooth):
+def bigwig_from_tagAlign(replGroup,tagAligns,normFactor,binSize,bigwigdir,smooth,cmds,chrSizes):
     suff=replGroup
     mtagAlign=bigwigdir+'/tmp/'+suff+'.tagAlign.gz'
     os.system('mkdir -p '+bigwigdir+'/tmp')
-    cmds.append('cat '+tagAligns+' | gzip >  '+mtagAlign)
-    cmds.append('bedToBam -i '+mtagAlign+' -g '+opts.chrSizes+' > '+mtagAlign+'.bam')
+    cmds.append('zcat -f '+tagAligns+" | awk '{if ($3>$2) print $0}' | gzip >  "+mtagAlign)
+    cmds.append('bedToBam -i '+mtagAlign+' -g '+chrSizes+' > '+mtagAlign+'.bam')
     cmds.append('samtools sort '+mtagAlign+'.bam '+mtagAlign+'.sorted')
     cmds.append('samtools index '+mtagAlign+'.sorted.bam')
     cmds.append('module load python_anaconda/2.2.0')
@@ -172,9 +174,7 @@ def qsub_a_command(cmd,shell_script_name,split_string=',',memory_number='20G'):
     cmds=cmd.split(split_string)
     print cmds
     for i in range(len(cmds)):
-        f.write("cmd"+str(i)+"='"+cmds[i]+"'"+'\n')
-        f.write('echo $cmd'+str(i)+'\n')
-        f.write('eval $cmd'+str(i)+'\n')
+        f.write(cmds[i]+'\n')
     f.close()
     #make runnable
     os.system('chmod 711 '+shell_script_name)
