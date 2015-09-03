@@ -48,5 +48,5 @@ script_location=${OUTDIR}/${SAMPLE}_remove_chrM_qc30_2tagAlign_script.sh
 outpref=${OUTDIR}/${SAMPLE}.tagAlign.gz
 mkdir -p ${OUTDIR}
 
-samtools view ${PROPER_PAIR} -q30 -F1548 -h ${INBAM} | grep -v chrM | samtools view -Sh - | awk '$4 !="*"{print $0}' | samtools view -S -b - | bamToBed -i stdin | awk 'BEGIN{FS="\t";OFS="\t"}{$4="N"; $5="1000" ; print $0}' | gzip > ${outpref}
+samtools view ${PROPER_PAIR} -q30 -F1804 -h ${INBAM} | grep -v chrM | samtools view -Sh - | awk '$4 !="*"{print $0}' | samtools view -S -b - | bamToBed -i stdin | awk 'BEGIN{FS="\t";OFS="\t"}{$4="N"; $5="1000" ; print $0}' | gzip > ${outpref}
 #qsub -l h_vmem=3G -o ${script_location}.o -e ${script_location}.e ${script_location} 

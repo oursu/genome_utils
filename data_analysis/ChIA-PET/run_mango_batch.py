@@ -16,6 +16,7 @@ def main():
     parser.add_option('--metadata',dest='metadata',help='Columns are sra link, sample name, replicate group', default='/srv/scratch/oursu/3Dgenome/data/ChIA-PET/metadata/metadata_GSE59395')
     parser.add_option('--step',dest='step',help='Step: download, fastq, mango', default='mango')
     parser.add_option('--by_replicateGroup',dest='by_replGroup',action='store_true')
+    parser.add_option('--blacklist',dest='blacklist',default='/srv/scratch/oursu/data/wgEncodeDacMapabilityConsensusExcludable.bed')
     opts,args=parser.parse_args()
 
     fastqdir=opts.out_dir+'/fastq/'
@@ -65,15 +66,15 @@ def main():
             # Run mango on the data
             #========================
             if opts.step=='mango':
-                run_mango(fastqdir+'/'+samplename+"_1.fastq.gz",fastqdir+'/'+samplename+"_2.fastq.gz",samplename,mangodir,cmds)
+                run_mango(fastqdir+'/'+samplename+"_1.fastq.gz",fastqdir+'/'+samplename+"_2.fastq.gz",samplename,mangodir,cmds,opts.blacklist)
 
     #===============================
     # MERGED REPLICATES
     #===============================
     if opts.by_replGroup:
         for replGroup in d.keys():
-            if replGroup=='ChIAPET_GM12878_RAD21':
-                continue
+            #if replGroup=='ChIAPET_GM12878_RAD21':
+            #    continue
             cmds=[]
             cmds.append('source '+opts.bashrc)
             fq1s=''
@@ -86,11 +87,11 @@ def main():
             # Run mango on the data
             #========================
             if opts.step=='mango':
-                run_mango(fq1s,fq2s,replGroup,mangodir,cmds)  
+                run_mango(fq1s,fq2s,replGroup,mangodir,cmds,opts.blacklist)  
                 
 
 
-def run_mango(fq1,fq2,samplename,outdir,cmds):
+def run_mango(fq1,fq2,samplename,outdir,cmds,blacklist):
     outmango=outdir+'/'+samplename+'/'
     tmp=outmango+'/tmp'
     os.system("mkdir -p "+outmango)
@@ -99,8 +100,11 @@ def run_mango(fq1,fq2,samplename,outdir,cmds):
     new_fq2=tmp+'/'+samplename+"_2.combined.fastq"
     cmds.append("zcat -f "+fq1+" > "+new_fq1)
     cmds.append("zcat -f "+fq2+" > "+new_fq2)
-    cmds.append("Rscript /software/mango/mango.R --fastq1 "+new_fq1+" --fastq2 "+new_fq2+" --outdir "+outmango+" --prefix "+samplename+".mango --argsfile ${ARGFILE} --chromexclude chrX,chrM,chrY --stages 1:5")
+    cmds.append("Rscript /software/mango/mango.R --fastq1 "+new_fq1+" --fastq2 "+new_fq2+" --outdir "+outmango+" --prefix "+samplename+".mango --argsfile ${ARGFILE} --chromexclude chrX,chrM,chrY --stages 1:5 --reportallpairs TRUE")
     #cmds.append('rm -r '+tmp)
+    #cmds.append('rm '+outmango+'/*sam')
+    #cmds.append('rm '+outmango+'/*fastq')
+    #cmds.append('rm '+outmango+'/*bedpe')
     qsub_a_command(cmds,outmango+'/'+samplename+'.mango.script.sh','20G')
 
 def get_data(sra,fastqdir,cmdtype):
