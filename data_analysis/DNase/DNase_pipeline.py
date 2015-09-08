@@ -101,10 +101,14 @@ def main():
                 if fragLen==0: #single-cut
                     #shift reads first
                     cmds.append('slopBed -i '+tagAlign+' -g '+opts.chrSizes+' -l 75 -r -75 -s > '+tagAlign+'.shift75bp.bed')
-                    cmds.append(macs2(tagAlign+'.shift75bp.bed','150',opts.genome,mergedRepldir+'/'+replGroup))
+                    macs2cmds=macs2(tagAlign+'.shift75bp.bed','150',opts.genome,mergedRepldir+'/'+replGroup)
+                    for cmd in macs2cmds:
+                        cmds.append(cmd)
 
                 if fragLen!=0: #double cut, treat like chipseq
-                    cmds.append(macs2(tagAlign,fragLen,opts.genome,mergedRepldir+'/'+replGroup))
+                    macs2cmds=macs2(tagAlign,fragLen,opts.genome,mergedRepldir+'/'+replGroup)
+                    for cmd in macs2cmds:
+                        cmds.append(cmd)
 
                 qsub_a_command('qqqq'.join(cmds),peakdir+'/'+samplename+'_MACS.script.sh','qqqq','20G')
         
@@ -131,7 +135,9 @@ def main():
             if opts.step=='MACS2':
                 combined_tagAlign=mergedRepldir+'/'+replGroup+'.merged.tagAlign.gz'
                 cmds.append('zcat -f '+tagAligns+' | gzip > '+combined_tagAlign)
-                cmds.append(macs2(combined_tagAlign,str(int(np.median(fragLenValues))),opts.genome,mergedRepldir+'/'+replGroup))
+                macs2cmds=macs2(combined_tagAlign,str(int(np.median(fragLenValues))),opts.genome,mergedRepldir+'/'+replGroup)
+                for cmd in macs2cmds:
+                    cmds.append(cmd)
                 qsub_a_command('qqqq'.join(cmds),mergedRepldir+'/'+replGroup+'_MACS2.script.sh','qqqq','20G')
 
             if opts.step=='bigwig':
@@ -165,7 +171,13 @@ def get_best_fragLen(f):
     return int(fs[np.argmax(ccs2)])
 
 def macs2(bed,extsize,chrSizes,out):
-    return 'macs2 callpeak -t '+bed+' -f BED -n '+out+' -g '+chrSizes+ ' -p 1e-2 --nomodel --shift 0 --extsize '+extsize+' -B --SPMR --keep-dup all --call-summits'
+    cmds=[]
+    cmds.append('macs2 callpeak -t '+bed+' -f BED -n '+out+' -g '+chrSizes+ ' -p 1e-2 --nomodel --shift 0 --extsize '+extsize+' -B --SPMR --keep-dup all --call-summits')
+    cmds.append('macs2 bdgcmp -t '+out+'_treat_pileup.bdg -c '+out+'_control_lambda.bdg --o-prefix '+out+' -m FE')
+    cmds.append('slopBed -i '+out+'_FE.bdg -g '+chrSizes+' -b 0 | bedClip stdin '+chrSizes+' '+out+'.fc.signal.bedgraph')
+    cmds.append('bedGraphToBigWig '+out+'.fc.signal.bedgraph '+chrSizes+' '+out+'.fc.signal.bigwig')
+    cmds.append('rm -f '+out+'.fc.signal.bedgraph '+out+'_FE.bdg')
+    return cmds
 
 def qsub_a_command(cmd,shell_script_name,split_string=',',memory_number='20G'):
     #write a shell script (for reproducibility)
