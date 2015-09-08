@@ -19,7 +19,7 @@ def main():
     parser.add_option('--bashrc',dest='bashrc',default='/srv/scratch/oursu/code/data_analysis/DNase/DNase_bashrc')
     parser.add_option('--out_dir',dest='out_dir',default='/mnt/lab_data/kundaje/projects/encodeenhancerpredict/DNaseI/results/')
     parser.add_option('--metadata',dest='metadata',help='Columns are sample name, replicate group, bam file', default='/mnt/lab_data/kundaje/projects/encodeenhancerpredict/histone_chipseq/doc/histone_chipseq_metadata.txt')
-    parser.add_option('--step',dest='step',help='Step: tagAlign', default='tagAlign')
+    parser.add_option('--step',dest='step',help='Step to perform. For a typical run, the steps are (in this order): WITHOUT --by_replicateGroup tagAlign, SPP, WITH --by_replicateGroup MACS2', default='tagAlign')
     parser.add_option('--by_replicateGroup',dest='by_replGroup',action='store_true')
     opts,args=parser.parse_args()
 
@@ -95,17 +95,17 @@ def main():
             #===================
             if opts.step=='MACS2':
                 fragLenOver2=str(int(int(get_best_fragLen(qcdir+'/'+sampleid+'SPP_table.txt'))/2))
+                fragLen=str(2*int(fragLenOver2))
                 peakfile=peakdir+'/'+sampleid
 
                 if fragLen==0: #single-cut
                     #shift reads first
                     cmds.append('slopBed -i '+tagAlign+' -g '+opts.chrSizes+' -l 75 -r -75 -s > '+tagAlign+'.shift75bp.bed')
-                    macscmd='macs2 callpeak -t '+tagAlign+'.shift75bp.bed'+' -f BED -n '+peakfile+' -g '+opts.genome+ ' -p 1e-2 --nomodel --shift 75 -B --SPMR --keep-dup all --call-summits'
+                    cmds.append(macs2(tagAlign+'.shift75bp.bed','150',opts.genome,mergedRepldir+'/'+replGroup))
 
                 if fragLen!=0: #double cut, treat like chipseq
-                    macscmd='macs2 callpeak -t '+tagAlign+' -f BED -n '+peakfile+' -g '+opts.genome+ ' -p 1e-2 --nomodel --shift '+fragLenOver2+' -B --SPMR --keep-dup all --call-summits'
+                    cmds.append(macs2(tagAlign,fragLen,opts.genome,mergedRepldir+'/'+replGroup))
 
-                cmds.append(macscmd)
                 qsub_a_command('qqqq'.join(cmds),peakdir+'/'+samplename+'_MACS.script.sh','qqqq','20G')
         
 
@@ -131,7 +131,7 @@ def main():
             if opts.step=='MACS2':
                 combined_tagAlign=mergedRepldir+'/'+replGroup+'.merged.tagAlign.gz'
                 cmds.append('zcat -f '+tagAligns+' | gzip > '+combined_tagAlign)
-                cmds.append(macs2(combined_tagAlign,str(int(np.median(fragLenValues))/2),opts.genome,mergedRepldir+'/'+replGroup+'.peaks.narrowPeak'))
+                cmds.append(macs2(combined_tagAlign,str(int(np.median(fragLenValues))),opts.genome,mergedRepldir+'/'+replGroup))
                 qsub_a_command('qqqq'.join(cmds),mergedRepldir+'/'+replGroup+'_MACS2.script.sh','qqqq','20G')
 
             if opts.step=='bigwig':
@@ -164,8 +164,8 @@ def get_best_fragLen(f):
         ccs2.append(float(item))
     return int(fs[np.argmax(ccs2)])
 
-def macs2(bed,shift,chrSizes,out):
-    return 'macs2 callpeak -t '+bed+' -f BED -n '+out+' -g '+chrSizes+ ' -p 1e-2 --nomodel --shift '+shift+' -B --SPMR --keep-dup all --call-summits'
+def macs2(bed,extsize,chrSizes,out):
+    return 'macs2 callpeak -t '+bed+' -f BED -n '+out+' -g '+chrSizes+ ' -p 1e-2 --nomodel --shift 0 --extsize '+extsize+' -B --SPMR --keep-dup all --call-summits'
 
 def qsub_a_command(cmd,shell_script_name,split_string=',',memory_number='20G'):
     #write a shell script (for reproducibility)
