@@ -24,7 +24,7 @@ def main():
     opts,args=parser.parse_args()
 
     
-    os.system('mkdir '+opts.out_dir)
+    os.system('mkdir -p '+opts.out_dir)
     tagAligndir=opts.out_dir+'/tagAlign/'
     os.system('mkdir '+tagAligndir)
     qcdir=opts.out_dir+'/QC'
@@ -42,6 +42,7 @@ def main():
     sample2group={}
     for line in open(opts.metadata,'r').readlines():
         items=line.strip().split('\t')
+        print items
         sampleid=items[0]
         replicateGroup=items[1]
         bam=items[2]
