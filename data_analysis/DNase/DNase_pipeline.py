@@ -41,10 +41,11 @@ def main():
     #map the data to the replicate groups so we can merge reads and call peaks together                                                                              
     sample2group={}
     for line in open(opts.metadata,'r').readlines():
-        items=line.strip().split('\t')
+        items=line.strip().split()
         print items
         sampleid=items[0]
         replicateGroup=items[1]
+        print 'items 2 comes now'
         bam=items[2]
         if replicateGroup not in sample2group.keys():
             sample2group[replicateGroup]={}
@@ -60,7 +61,7 @@ def main():
     #========================================================
     if not opts.by_replGroup:
         for line in open(opts.metadata,'r').readlines():
-            items=line.strip().split('\t')
+            items=line.strip().split()
             sampleid=items[0]
             replicateGroup=items[1]
             bam=items[2]
