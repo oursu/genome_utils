@@ -1,5 +1,6 @@
 chrSizes=/mnt/data/annotations/by_release/hg19.GRCh37/hg19.chrom.sizes
 SRC_DIR=/srv/scratch/oursu/code/genome_utils/3Dutils
+PATH="${SRC_DIR}:$PATH"
 
 #Modules
 module load bedtools/2.25.0

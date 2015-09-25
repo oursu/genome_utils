@@ -5,3 +5,4 @@ export PATH=/srv/scratch/oursu/DNase/:$PATH
 module load r/2.15.1
 module load phantompeakqualtools/default
 module load MACS2/2.1.0
+module load ucsc_tools/3.0.9
