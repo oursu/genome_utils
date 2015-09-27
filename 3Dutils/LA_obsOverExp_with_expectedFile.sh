@@ -16,5 +16,5 @@ fi
 expectedtmp=${out_n1n2value}_expectedtmp
 zcat -f ${expectedfile} | awk '{print $0"\t"NR}' | sort -k2b,2 > ${expectedtmp}
 zcat -f ${in_n1n2value} | awk -v res=${resolution} '{dist=($2-$1)/res+1}{print $1"\t"$2"\t"$3"\t"dist}' | sort -k4b,4 | join -1 2 -2 4 -o 2.1 2.2 2.3 1.1 -e "NA" -t $'\t' ${expectedtmp} - | awk '{obsOverExp=$3/$4}{print $1"\t"$2"\t"obsOverExp}' |  gzip > ${out_n1n2value}
-
+rm ${expectedtmp}
 
