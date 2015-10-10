@@ -54,5 +54,5 @@ fi
 convert_n1n2value_to_bedpe.sh ${obsOverExp_file} ${out_bedpe}_windowsFile.w${resolution}_${chromo}.gz ${out_bedpe}.gz
 
 #removing unnecessary files
-rm ${normalized_file} ${obsOverExp_file} ${out_bedpe}_windowsFile.w${resolution}_*.gz ${out_bedpe}_windowsFile.w${resolution}.gz 
+rm ${normalized_file} ${obsOverExp_file} ${out_bedpe}_windowsFile.w${resolution}*.gz
  

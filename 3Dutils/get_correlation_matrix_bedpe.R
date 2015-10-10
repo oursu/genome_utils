@@ -28,7 +28,7 @@ compute_corr=function(m,method_name,out){
 	    e2=chr_bed[as.character(correlations_melted[,'X2']),]
 
 	    #convert to bedpe
-	    cm_bedpe=data.frame(e1[,1],e1[,2],e1[,3],e2[,1],e2[,2],e2[,3],correlations_melted[,'value'])
+	    cm_bedpe=data.frame(e1[,1],e1[,2],e1[,3],e2[,1],e2[,2],e2[,3],'NA',correlations_melted[,'value'])
 	    
 	    #write table
 	    outfile=paste(out,'.',chromo,sep='')

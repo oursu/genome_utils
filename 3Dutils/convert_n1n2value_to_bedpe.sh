@@ -14,6 +14,6 @@ fi
 
 echo "====== Starting conversion from n1 n2 value to bedpe =========="
 zcat -f ${node_bed} | sort -k4b,4 > ${out_bedpe}_node_bed_sorted
-zcat -f ${f} | sort -k1b,1 | join -1 1 -2 4 -o 2.1 2.2 2.3 1.2 1.3 - ${out_bedpe}_node_bed_sorted | sort -k4b,4 | join -1 4 -2 4 -o 1.1 1.2 1.3 2.1 2.2 2.3 1.5 - ${out_bedpe}_node_bed_sorted | sed 's/ /\t/g' | gzip > ${out_bedpe}
+zcat -f ${f} | sort -k1b,1 | join -1 1 -2 4 -o 2.1 2.2 2.3 1.2 1.3 - ${out_bedpe}_node_bed_sorted | sort -k4b,4 | join -1 4 -2 4 -o 1.1 1.2 1.3 2.1 2.2 2.3 1.5 - ${out_bedpe}_node_bed_sorted | sed 's/ /\t/g' | awk '{print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$6"\tNA\t"$7}' | gzip > ${out_bedpe}
 rm ${out_bedpe}_node_bed_sorted
 echo "====== DONE conversion from n1 n2 value to bedpe =========="
