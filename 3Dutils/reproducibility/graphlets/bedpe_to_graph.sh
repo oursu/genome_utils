@@ -33,5 +33,5 @@ then
  echo "${numNodes} ${numEdges}" > ${out_graph}
 fi
 zcat -f ${out_graph}_edges >> ${out_graph}
-zcat -f ${out_graph}_nodes | gzip > ${out_graph}_nodes.gz
+zcat -f ${out_graph}_nodes | sed 's/:/\t/g' | sed 's/-/\t/g' | gzip > ${out_graph}_nodes.gz
 rm ${out_graph}_edges ${out_graph}_nodes
