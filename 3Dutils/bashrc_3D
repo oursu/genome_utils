@@ -7,4 +7,5 @@ PATH="/srv/scratch/oursu/code/software/orca:$PATH"
 #Modules
 module load bedtools/2.25.0
 module load r/3.2.0
+module load ucsc_tools/3.0.9
 export R_LIBS=$R_LIBS:/srv/scratch/oursu/code/software/R/

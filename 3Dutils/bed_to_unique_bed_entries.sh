@@ -9,5 +9,5 @@ then
     exit
 fi
 
-beds=$(echo ${in_bedpe} | sed 's/,/ /g')
+beds=$(echo ${in_bed} | sed 's/,/ /g')
 zcat -f ${beds} | cut -f1-3 | grep -v start | sort | uniq | awk '{print $1"\t"$2"\t"$3"\t"$1":"$2"-"$3}' | gzip > ${out_bed}

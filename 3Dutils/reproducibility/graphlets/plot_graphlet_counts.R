@@ -10,7 +10,10 @@ graphlets=read.table(gc_file)
 colnames(graphlets)=seq(from=0,to=dim(graphlets)[2]-1,by=1)
 DEGREE=1
 
+print(annos)
+
 #If we have annotations, then plot a profile by	annotation
+if (is.na(annos)!=TRUE){
 anno_profiles=list()
 for (anno in annos){
  print(anno)
@@ -22,6 +25,9 @@ for (anno in annos){
   nodes=which(anno_data[,anno_type]==1)
   anno_profiles[[anno]][anno_type,]=colMeans(graphlets[nodes,])
  }
+ colnames(anno_profiles[[anno]])=colnames(graphlets)
+ print(anno_profiles)
+}
 }
 
 
@@ -31,9 +37,11 @@ plot(ecdf(graphlets[,DEGREE]),ylab='ECDF',xlab='Node degree',main=paste('Node de
 #now, plot a heatmap of the graphlets
 pheatmap(as.matrix(graphlets),cluster_cols=F,cluster_rows=F,main="Graphlet counts")
 pheatmap(log(as.matrix(graphlets+1),base=10),cluster_cols=F,cluster_rows=F,main="Log10 (graphlet counts + 1) heatmap")
+if (is.na(annos)!=TRUE){
 for (anno in annos){
     pheatmap(as.matrix(anno_profiles[[anno]]),cluster_cols=F,cluster_rows=F,main=paste("Mean graphlet counts\n",basename(anno),sep=''))
     pheatmap(as.matrix(log(anno_profiles[[anno]]+1,base=10)),cluster_cols=F,cluster_rows=F,main=paste("Mean log10(graphlet counts +1) counts\n",
     basename(anno),sep=''))
+}
 }
 dev.off()
