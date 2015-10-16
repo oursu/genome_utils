@@ -25,3 +25,4 @@ bedtools pairtobed -type either -a ${in_bedpe} -b ${out_bedpe_pref}_ws.w${w}.gz 
 awk -v out=${out_bedpe_pref} '{print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8>out".w"$12}'
 cd $(dirname ${out_bedpe_pref})
 for f in $(ls ${out_bedpe_pref}.w*);do gzip -f ${f};done
+rm ${out_bedpe_pref}_ws.w${w}.gz
