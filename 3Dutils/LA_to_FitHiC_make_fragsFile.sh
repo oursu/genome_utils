@@ -18,7 +18,7 @@ then
     echo "CHR = chromosome name"
     echo "BL = blacklist file for filtering regions out. Usually /srv/scratch/oursu/data/wgEncodeDacMapabilityConsensusExcludable.bed"
     echo "chrSizes"
-    echo "norm = e.g. SQRTVC"
+    echo "norm = e.g. SQRTVC, can also be nothing"
     exit
 fi
 
@@ -39,13 +39,19 @@ zcat -f ${OUT}.tmp.gz | sort -k3b,3 | join -a1 -1 2 -2 3 -e "0" -o 1.1 1.2 2.4 $
 zcat -f ${OUT}.tmp2.gz | awk -v reso=${RES} '{end=$2+reso}{print $1"\t"$2"\t"end"\t"$3}' | sort | uniq | bedtools subtract -A -a stdin -b ${BL} > ${OUT}.tmp.rmBL
 #get mappability of the bins
 python ${MAP_CODE}/mappability_from_bed_bedout.py --regions ${OUT}.tmp.rmBL --read_length 101 --out ${OUT}.tmp.rmBL.mappability
-zcat -f ${OUT}.tmp.rmBL.mappability | awk '{map=0}{if ($5>0.5) map=1}{print $1"\t0\t"$2"\t"$4"\t"map}' | gzip > ${OUT}.frags.gz
+zcat -f ${OUT}.tmp.rmBL.mappability | awk '{map=0}{if ($5>0.5) map=1}{print $1"\t0\t"$2"\t"$4"\t"map}' | sed 's/chr//g' | gzip > ${OUT}.frags.gz
 rm ${OUT}.tmp.rmBL ${OUT}.tmp.gz ${OUT}_interactions.tmp ${OUT}.tmp2.gz ${windowfile} ${windowfile}_unzip ${OUT}.tmp.rmBL.mappability
 echo "DONE making frag file"
 echo "making bias file"
-normfile=$(echo ${INFILE} | sed 's/RAWobserved/'${norm}norm/)
-zcat -f ${normfile} | awk -v res=${RES} -v chromo=${CHR} '{pos=(NR-1)*res}{print chromo"\t"pos"\t"$0}' | gzip > ${OUT}.bias${norm}.gz
-echo "done bias file"
+if [[ ${norm} != 'nothing' ]];
+then
+ normfile=$(echo ${INFILE} | sed 's/RAWobserved/'${norm}norm/)
+ zcat -f ${normfile} | awk -v res=${RES} -v chromo=${CHR} '{pos=(NR-1)*res}{print chromo"\t"pos"\t"$0}' | gzip > ${OUT}.bias${norm}.gz
+ echo "done bias file"
+fi
+echo "Making frag file for ICE"
+zcat -f ${OUT}.frags.gz | awk '{print $1"\t"$3"\t"$4"\t"$5}' | gzip > ${OUT}.frags.forICE.gz
+echo "DONE frag file for ICE"
 
 
 

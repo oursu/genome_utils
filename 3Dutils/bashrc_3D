@@ -3,6 +3,7 @@ SRC_DIR=/srv/scratch/oursu/code/genome_utils/3Dutils
 PATH="${SRC_DIR}:$PATH"
 PATH="${SRC_DIR}/reproducibility/graphlets:$PATH"
 PATH="/srv/scratch/oursu/code/software/orca:$PATH"
+PATH="/srv/scratch/oursu/code/software/pipelines/bds/hic:$PATH"
 
 #Modules
 module load bedtools/2.25.0
