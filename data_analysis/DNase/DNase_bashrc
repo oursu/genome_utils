@@ -1,7 +1,7 @@
 module load samtools/0.1.19 
 module load bedtools/2.18.0
-export PATH=/srv/scratch/oursu/code/genome_utils/data_analysis/DNase/:$PATH
-export PATH=/srv/scratch/oursu/DNase/:$PATH
+export PATH=/mnt/lab_data/kundaje/users/oursu/code/genome_utils/data_analysis/DNase/:$PATH
+export PATH=/mnt/lab_data/kundaje/users/oursu/DNase/:$PATH
 module load r/2.15.1
 module load phantompeakqualtools/default
 module load MACS2/2.1.0

@@ -73,6 +73,8 @@ def main():
             # make tagAlign file
             #===================
             if opts.step=='tagAlign':
+                if bam=='NA':
+                    continue
                 cmds.append('remove_chrM_qc30_2tagAlign.sh --inbam '+bam+' --outdir '+tagAligndir+' --sample '+sampleid+' --SE 1')
                 qsub_a_command('qqqq'.join(cmds),tagAligndir+'/'+sampleid+'_2tagAlign.script.sh','qqqq','20G')
 
@@ -161,7 +163,7 @@ def bigwig_from_tagAlign(replGroup,tagAligns,normFactor,binSize,bigwigdir,smooth
     cmds.append('module load python_anaconda/2.2.0')
     cmds.append('bamCoverage --normalizeTo1x '+normFactor+' --smoothLength '+smooth+' --binSize '+binSize+' -b '+mtagAlign+'.sorted.bam'+' -o '+bigwigdir+'/'+suff+'.bw')
     print cmds
-    qsub_a_command('qqqq'.join(cmds),bigwigdir+'/'+replGroup+'_bigwig.script.sh','qqqq','20G')
+    qsub_a_command('qqqq'.join(cmds),bigwigdir+'/'+replGroup+'_bigwig.script.sh','qqqq','100G')
 
 def get_best_fragLen(f):
     items=open(f,'r').readlines()[0].strip().split('\t')
