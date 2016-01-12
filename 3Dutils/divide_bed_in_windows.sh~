@@ -23,7 +23,5 @@ echo "=="
 #make windows
 create_bed_fixedWindows_withName.sh ${chrSizes} ${w} ${out_bed_pref}_ws 'startOfWindow'
 #intersect windows with the bed file
-bedtools intersect -wo -a ${out_bed_pref}_ws.w${w}.gz -b ${in_bed} | sort -n -k 5 | awk -v out=${out_bed_pref} '{print $5"\t"$6"\t"$7"\t"$8>out".w"$2}'
-cd $(dirname ${out_bed_pref})
-for f in $(ls ${out_bed_pref}.w*);do zcat -f ${f} | gzip > ${f}.gz;rm ${f};done
-rm ${out_bed_pref}_ws.w${w}.gz
+bedtools intersect -wo -a ${out_bed_pref}_ws.w${w}.gz -b ${in_bed} | awk -v out=${out_bed_pref} '{print $5"\t"$6"\t"$7"\t"$8>out".w"$2}'
+
