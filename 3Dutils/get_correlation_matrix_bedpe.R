@@ -33,7 +33,7 @@ compute_corr=function(m,method_name,out){
 	    #write table
 	    outfile=paste(out,'.',chromo,sep='')
 	    write.table(cm_bedpe,file=outfile,sep='\t',row.names=F,col.names=F,quote=F)
-	    gzip_file(outfile)
+	    #gzip_file(outfile)
 	}
 }
 
