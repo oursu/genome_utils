@@ -12,7 +12,7 @@ then
     echo "in_n1n2value = RAWobserved file"
     echo "norm = normalization scheme. Can be: 'nothing', 'KR', 'SQRTVC', 'VC'"
     echo "obsOverExpected = can be 'nothing' (which means keep entries as they are), RAWexpected, KRexpected, SQRTVCexpected, VCexpected"
-    echo "out_bedpe = the name of the output bedpe file"
+    echo "out_bedpe = the name of the output bedpe file, without .gz"
     echo "resolution = HiC resolution, in bp"
     echo "chrSizes = chrSizes file, for instance for human it's /mnt/data/annotations/by_release/hg19.GRCh37/hg19.chrom.sizes"
     echo "chromo = chromosome for the analysis"
@@ -49,10 +49,11 @@ if [[ ${obsOverExpected} == 'nothing' ]];
 then
  mv ${normalized_file} ${obsOverExp_file}
 fi 
+echo "done values operations"
 
 #conversion to bedpe
 convert_n1n2value_to_bedpe.sh ${obsOverExp_file} ${out_bedpe}_windowsFile.w${resolution}_${chromo}.gz ${out_bedpe}.gz
 
 #removing unnecessary files
-rm ${normalized_file} ${obsOverExp_file} ${out_bedpe}_windowsFile.w${resolution}*.gz
+#rm ${normalized_file} ${obsOverExp_file} ${out_bedpe}_windowsFile.w${resolution}*.gz
  

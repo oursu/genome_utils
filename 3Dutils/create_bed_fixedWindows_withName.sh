@@ -2,6 +2,7 @@ chrSizes=$1 #chrSizes
 w=$2 #window size
 out_bed=$3 #out bed file you get (will append to the name w${w}.gz)
 naming=$4 #naming convention
+s=$5
 
 if [[ "$#" -lt 2 ]]
 then
@@ -10,7 +11,8 @@ then
     echo "chrSizes = chrSizes file, for instance for human it's /mnt/data/annotations/by_release/hg19.GRCh37/hg19.chrom.sizes "
     echo "w = window for the fixed size of the genomic regions. In bp"
     echo "out_bed = name of output file. Output file final name will be ${out_bed}.w${w}.gz"
-    echo "naming = what to name each bed entry. Current options are endOfWindow and startOfWindow"
+    echo "naming = what to name each bed entry. Current options areendOfWindow and startOfWindow"
+    echo "s = step size. usually same as w"
     exit
 fi
 
@@ -29,7 +31,7 @@ then
  naming_cmd="awk '{print \$1\"\t\"\$2\"\t\"\$3\"\t\"\$2}' | "
 fi
 
-cmd="bedtools makewindows -i winnum -w ${w} -g ${chrSizes} | ${naming_cmd} gzip > ${out_bed}.w${w}.gz"
+cmd="bedtools makewindows -i winnum -w ${w} -s ${s} -g ${chrSizes} | ${naming_cmd} gzip > ${out_bed}.w${w}.gz"
 eval $cmd
 
 echo "========= DONE creating window file =========="
