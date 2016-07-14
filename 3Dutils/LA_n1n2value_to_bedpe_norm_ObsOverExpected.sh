@@ -27,7 +27,7 @@ expected=$(echo ${in_n1n2value} | sed 's/RAWobserved/'${obsOverExpected}/)
 
 
 #make files for the windows used
-create_bed_fixedWindows_withName.sh ${chrSizes} ${resolution} ${out_bedpe}_windowsFile startOfWindow
+create_bed_fixedWindows_withName.sh ${chrSizes} ${resolution} ${out_bedpe}_windowsFile startOfWindow ${resolution}
 convert_windowsFile_to_perChromosome.sh ${out_bedpe}_windowsFile.w${resolution}.gz
 
 #operations on the values
@@ -40,6 +40,7 @@ if [[ ${norm} != 'nothing' ]];
 then
  LA_normalize_with_normFile.sh ${in_n1n2value} ${normf} ${normalized_file} ${resolution}
 fi
+echo "done norm"
 #obsOverExpected
 if [[ ${obsOverExpected} != 'nothing' ]];
 then

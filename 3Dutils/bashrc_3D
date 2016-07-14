@@ -1,5 +1,5 @@
-chrSizes=/afs/ir.stanford.edu/users/o/u/oursu/Genome3D_shapes/data/hg19.chrom.sizes
-SRC_DIR=/afs/ir.stanford.edu/users/o/u/oursu/Genome3D_shapes/code/genome_utils/3Dutils
+chrSizes=/mnt/data/annotations/by_release/hg19.GRCh37/hg19.chrom.sizes
+SRC_DIR=/mnt/lab_data/kundaje/users/oursu/code/genome_utils/3Dutils
 PATH="${SRC_DIR}:$PATH"
 #PATH="${SRC_DIR}/reproducibility/graphlets:$PATH"
 #PATH="/srv/scratch/oursu/code/software/orca:$PATH"
