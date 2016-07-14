@@ -1,12 +1,12 @@
-chrSizes=/mnt/data/annotations/by_release/hg19.GRCh37/hg19.chrom.sizes
-SRC_DIR=/mnt/lab_data/kundaje/users/oursu/code/genome_utils/3Dutils
+chrSizes=/afs/ir.stanford.edu/users/o/u/oursu/Genome3D_shapes/data/hg19.chrom.sizes
+SRC_DIR=/afs/ir.stanford.edu/users/o/u/oursu/Genome3D_shapes/code/genome_utils/3Dutils
 PATH="${SRC_DIR}:$PATH"
-PATH="${SRC_DIR}/reproducibility/graphlets:$PATH"
-PATH="/srv/scratch/oursu/code/software/orca:$PATH"
-PATH="/srv/scratch/oursu/code/software/pipelines/bds/hic:$PATH"
+#PATH="${SRC_DIR}/reproducibility/graphlets:$PATH"
+#PATH="/srv/scratch/oursu/code/software/orca:$PATH"
+#PATH="/srv/scratch/oursu/code/software/pipelines/bds/hic:$PATH"
 
 #Modules
-module load bedtools/2.25.0
-module load r/3.2.0
-module load ucsc_tools/3.0.9
-export R_LIBS=$R_LIBS:/srv/scratch/oursu/code/software/R/
+#module load bedtools/2.25.0
+#module load r/3.2.0
+#module load ucsc_tools/3.0.9
+#export R_LIBS=$R_LIBS:/srv/scratch/oursu/code/software/R/
