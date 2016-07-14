@@ -38,7 +38,7 @@ zcat -f ${OUT}.tmp.gz | sort -k3b,3 | join -a1 -1 2 -2 3 -e "0" -o 1.1 1.2 2.4 $
 #remove nodes from the blacklist
 zcat -f ${OUT}.tmp2.gz | awk -v reso=${RES} '{end=$2+reso}{print $1"\t"$2"\t"end"\t"$3}' | sort | uniq | bedtools subtract -A -a stdin -b ${BL} > ${OUT}.tmp.rmBL
 #get mappability of the bins
-python ${MAP_CODE}/mappability_from_bed_bedout.py --regions ${OUT}.tmp.rmBL --read_length 101 --out ${OUT}.tmp.rmBL.mappability
+~/software/python/anaconda/bin/python ${MAP_CODE}/mappability_from_bed_bedout.py --regions ${OUT}.tmp.rmBL --read_length 101 --out ${OUT}.tmp.rmBL.mappability
 zcat -f ${OUT}.tmp.rmBL.mappability | awk '{map=0}{if ($5>0.5) map=1}{print $1"\t0\t"$2"\t"$4"\t"map}' | sed 's/chr//g' | gzip > ${OUT}.frags.gz
 rm ${OUT}.tmp.rmBL ${OUT}.tmp.gz ${OUT}_interactions.tmp ${OUT}.tmp2.gz ${windowfile} ${windowfile}_unzip ${OUT}.tmp.rmBL.mappability
 echo "DONE making frag file"

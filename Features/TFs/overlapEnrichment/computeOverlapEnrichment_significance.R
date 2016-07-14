@@ -8,6 +8,7 @@ out=args[3]
 compute_TF_enrichment=function(tf.f,qtlpeak.f,out){
 tfdata=read.table(tf.f,header=TRUE,sep='\t')
 tfdata[is.na(tfdata)]=0
+print(summary(tfdata))
 tfs=setdiff(colnames(tfdata),c('chr','start','end','peak'))
 qtlpeak=read.table(qtlpeak.f)
 rownames(tfdata)=tfdata$peak
@@ -66,13 +67,14 @@ result2=data.frame(result,TFname=result$tf)
 ###################
 print('Plotting')
 require(ggplot2)
-pdf(paste(out,'.pdf',sep=''),height=12,width=10)
+pdf(paste(out,'.pdf',sep=''),height=20,width=20)
 res.cur=result2
 res.cur$TFname=factor(res.cur$TFname,levels=res.cur$TFname[order(res.cur$enrichment)])
 res.cur=cbind(res.cur,sig_after_BHcorrection=(as.numeric(as.character(res.cur$BH))<=0.05))
 print(ggplot(res.cur, aes(y=enrichment, x=TFname,col=sig_after_BHcorrection)) + coord_flip()+geom_point()+geom_errorbar(aes(ymax = res.cur$confLow, 
 ymin=res.cur$confHigh))+ylim(0,4)+
 ggtitle(basename(out)))
+print(res.cur)
 print(ggplot(res.cur, aes(y=enrichment, x=TFname,col=sig_after_BHcorrection)) + coord_flip()+geom_point()+geom_errorbar(aes(ymax = res.cur$confLow, 
 ymin=res.cur$confHigh))+ylim(0,20)+
 ggtitle(basename(out)))

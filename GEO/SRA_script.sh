@@ -14,14 +14,14 @@ outname=${outdir}/${sra_name}
 #here come the commands
 if [[ ${step} == 'download' ]]; then
  s=${outname}_downloadScript.sh
- echo "module load sratoolkit/2.4.2" > ${s}
+ echo "module load sratoolkit/2.5.2" > ${s}
  echo "wget --directory-prefix ${outdir} ${sra_path}" >> ${s}
  chmod 755 ${s}
- ${s}
+ #${s}
 fi
 if [[ ${step} == 'fastq' ]]; then
  s=${outname}_FastqScript.sh
- echo "module load sratoolkit/2.4.2" > ${s}
+ echo "module load sratoolkit/2.5.2" > ${s}
  echo "fastq-dump --split-3 --outdir ${outdir} ${outname}" >> ${s}
  echo "gzip $(echo ${outname} | sed 's/.sra//g')_1.fastq " >> ${s}
  echo "gzip $(echo ${outname} | sed 's/.sra//g')_2.fastq" >> ${s}
