@@ -25,7 +25,6 @@ normalized_file=${out_bedpe}_${norm}norm.n1n2value.gz
 obsOverExp_file=${out_bedpe}_${norm}norm.n1n2value.obsOverExp.gz
 expected=$(echo ${in_n1n2value} | sed 's/RAWobserved/'${obsOverExpected}/)
 
-
 #make files for the windows used
 create_bed_fixedWindows_withName.sh ${chrSizes} ${resolution} ${out_bedpe}_windowsFile startOfWindow ${resolution}
 convert_windowsFile_to_perChromosome.sh ${out_bedpe}_windowsFile.w${resolution}.gz
@@ -56,5 +55,9 @@ echo "done values operations"
 convert_n1n2value_to_bedpe.sh ${obsOverExp_file} ${out_bedpe}_windowsFile.w${resolution}_${chromo}.gz ${out_bedpe}.gz
 
 #removing unnecessary files
-#rm ${normalized_file} ${obsOverExp_file} ${out_bedpe}_windowsFile.w${resolution}*.gz
+if [[ -e ${normalized_file} ]];
+then
+    rm ${normalized_file}
+fi
+rm ${obsOverExp_file} ${out_bedpe}_windowsFile.w${resolution}*.gz
  
