@@ -6,13 +6,14 @@ qtlpeak.f=args[2]
 out=args[3]
 
 compute_TF_enrichment=function(tf.f,qtlpeak.f,out){
-tfdata=read.table(tf.f,header=TRUE,sep='\t')
+tfdata=read.table(tf.f,header=TRUE)
 tfdata[is.na(tfdata)]=0
-print(summary(tfdata))
-tfs=setdiff(colnames(tfdata),c('chr','start','end','peak'))
+print(tfdata[c(1:10),c(1:10)])
+#print(summary(tfdata))
+tfs=setdiff(colnames(tfdata),c('chr','start','end','name','strand','score'))
 qtlpeak=read.table(qtlpeak.f)
-rownames(tfdata)=tfdata$peak
-qtlpeaks=as.character(qtlpeak[,1])
+rownames(tfdata)=tfdata$name
+qtlpeaks=as.character(qtlpeak[,4])
 #restrict to only peaks with at least 1 TFBS
 #peaksWithTFBS=which(rowSums(tfdata[,tfs])>0)
 #tfdata=tfdata[peaksWithTFBS,]
@@ -20,6 +21,7 @@ qtlpeaks=as.character(qtlpeak[,1])
 #tfdata=data.frame(tfdata,QTLpeak=FALSE)
 #tfdata[qtlpeaks,'QTLpeak']=TRUE
 
+print(head(qtlpeaks))
 
 n=dim(tfdata)[1]
 result=data.frame(tf=tfs,
@@ -32,7 +34,7 @@ result=data.frame(tf=tfs,
 		confLow=NA,confHigh=NA)
 rownames(result)=tfs
 for (tf in tfs){
-    tf_peaks=as.character(tfdata[which(as.numeric(as.character(tfdata[,tf]))>0),'peak'])
+    tf_peaks=as.character(tfdata[which(as.numeric(as.character(tfdata[,tf]))>0),'name'])
     qtl_peaks_with_tf=intersect(tf_peaks,qtlpeaks)
     m=data.frame(TF=c(length(qtl_peaks_with_tf),length(tf_peaks)-length(qtl_peaks_with_tf)),
 		notTF=c(length(qtlpeaks)-length(qtl_peaks_with_tf),n-length(tf_peaks)-length(qtlpeaks)+length(qtl_peaks_with_tf)))

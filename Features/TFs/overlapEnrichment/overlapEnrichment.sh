@@ -52,6 +52,8 @@ step=$9 #step: computeOverlaps, overlapsToMatrix, overlapEnrichment
 sig_aggregatedOver=${10} #the significant set with which to overlap
 bedpe=${11} #for pairwise enrichment
 
+echo "out"
+echo ${out_prefix}
 echo "Your step is ${step}"
 
 if [[ $step == "computeOverlaps" ]];then
@@ -141,7 +143,7 @@ if [[ $step == "enrichmentAnalysis" ]];then
 	source ${bashrc}
 	#perform enrichment analysis
 	echo "computing significance"
-	${R_WITH_PACKAGES} ${enrichRcode} ${overlapMatrix}.gz ${sig_aggregatedOver} ${outdir}/${out_prefix}.overlapEnrichIN$(basename ${sig_aggregatedOver})
+	Rscript ${enrichRcode} ${overlapMatrix}.gz ${sig_aggregatedOver} ${outdir}/${out_prefix}.overlapEnrichIN$(basename ${sig_aggregatedOver})
 fi
 
 
