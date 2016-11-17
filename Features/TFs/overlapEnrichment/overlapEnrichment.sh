@@ -26,7 +26,7 @@ OverlapRegionsWithTFBS () {
     	#keep regions for which we found >=1 TFBS: awk '{if (\$5>0) print \$0}' 
     	#aggregate these over the aggregatedOver bed file: bedtools intersect -c -a ${peakfile} -b - 
     	#keep just the counts: cut -f5 
-    	echo "zcat -f ${chip} | sed 's/chr//g' | \
+    	echo "zcat -f ${chip} | \
     	bedtools window -w ${overlapWindow} -c -a ${regionfile} -b - | \
     	awk '{if (\$5>0) print \$0}' | \
     	bedtools intersect -c -a ${aggregatedOver} -b - | \
@@ -65,7 +65,7 @@ overlapMatrix=${outdir}/${out_prefix}.overlapMatrix
 if [[ $step == "overlapMatrix" ]];then
 	echo "Making the overlap matrix"
 	#combine all TFBS overlaps into 1 file
-	echo chr_start_end_peak | sed 's/_/\t/g' > ${overlapMatrix}.tmp
+	echo chr_start_end_name | sed 's/_/\t/g' > ${overlapMatrix}.tmp
 	zcat -f ${aggregatedOver} >> ${overlapMatrix}.tmp
 	paste ${overlapMatrix}.tmp ${outdir}/${out_prefix}*tfbsCount | gzip > ${overlapMatrix}.gz
 	#remove scripts used for the previous step

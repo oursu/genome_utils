@@ -29,5 +29,5 @@ zcat -f ${out_n1n2value}.tmp | cut -f3,${R1},7,${R2},${MAPQ} | \
 awk -v mapq_t=${mapq_threshold} -v res=${res} '{r1=int($2/res)*res}{r2=int($4/res)*res}{if ($5>=mapq_t && $6>=mapq_t) print $1"\t"r1"\t"$3"\t"r2}' | \
 sort | uniq -c | sed -e 's/ /\t/g' | awk '{print $2"\t"$3"\t"$4"\t"$5"\t"$1}' | gzip > ${out_n1n2value}
 
-#rm ${out_n1n2value}.tmp 
+rm ${out_n1n2value}.tmp 
 
