@@ -62,6 +62,7 @@ do
 	agg=${items[2]}
 	sig=${items[3]}
 	echo "read line"
+	echo "sig "${sig}
 	while read line
 	do
 	    if [[ $line == [#]* ]];then
@@ -85,6 +86,7 @@ do
 			s=${outpref}.sh
 			echo "source ${BASHRC}" > ${s}
 			echo "distance_distribution.sh -a ${all} -f ${filterfiles} -g ${agg} -s ${sig} -d ${distance_file} -o ${outpref} -b ${BASHRC} -w ${w}" >> ${s}
+			cat $s
 			qsub -o ${s}.o -e ${s}.e ${s}
 		    fi
 		done < ${META_FILTER}

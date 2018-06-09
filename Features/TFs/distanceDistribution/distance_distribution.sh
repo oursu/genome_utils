@@ -17,7 +17,7 @@ OPTIONS:
 }
 
 ALL=''
-FILTER=''
+FILTER='NA'
 AGGREGATED_OVER=''
 SIGFILE=''
 DISTANCE_TO=''
@@ -86,6 +86,6 @@ aggregatedDistances=${OUT}.all.filtered.D2.$(basename ${DISTANCE_TO}).agg_$(base
 bedtools window -w ${w} -a ${distances} -b ${AGGREGATED_OVER} | awk '{print $6"\t"$7"\t"$8"\t"$9"\t"$5}' | sort -k5 -n | awk '!seen[$4]++' | gzip > ${aggregatedDistances}
 
 #ECDF test
-Rscript ${genome_untils_path}/Features/TFs/distanceDistribution/ecdf_distanceDistribution.R ${aggregatedDistances} ${SIGFILE} ${OUT} 0 10000
+Rscript ${genome_utils_path}/Features/TFs/distanceDistribution/ecdf_distanceDistribution.R ${aggregatedDistances} ${SIGFILE} ${OUT} 0 2000000
 
-rm ${filters_combined} ${OUT}.all.filtered.bed.gz ${distances} ${aggregatedDistances} 
+#rm ${filters_combined} ${OUT}.all.filtered.bed.gz ${distances} ${aggregatedDistances} 

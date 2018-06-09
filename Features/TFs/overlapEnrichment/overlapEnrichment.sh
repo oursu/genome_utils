@@ -62,6 +62,7 @@ if [[ $step == "computeOverlaps" ]];then
 fi
 
 overlapMatrix=${outdir}/${out_prefix}.overlapMatrix
+echo "overlap matrix is ${overlapMatrix}"
 if [[ $step == "overlapMatrix" ]];then
 	echo "Making the overlap matrix"
 	#combine all TFBS overlaps into 1 file

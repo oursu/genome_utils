@@ -95,12 +95,12 @@ print(ggplot(res.cur, aes(y=enrichment, x=TFname,col=sig_after_BHcorrection)) + 
 ymin=res.cur$confHigh))+ylim(0,20)+
 ggtitle(basename(out)))
 
-overlap_data=data.frame(Count=result2[,'Overlap'],TFname=result2[,'name_percent'],category='Hits bound by TF')
-b_minus_overlap_data=data.frame(Count=result2[,'B']-result2[,'Overlap'],TFname=result2$name_percent,category='Hits not bound by TF')
-a_minus_overlap_data=data.frame(Count=result2[,'A']-result2[,'Overlap'],TFname=result2$name_percent,category='Non-hits bound by TF')
+overlap_data=data.frame(Count=result2[,'Overlap'],TFname=result2[,'name_percent'],category='Hits in the set of interest')
+b_minus_overlap_data=data.frame(Count=result2[,'B']-result2[,'Overlap'],TFname=result2$name_percent,category='Hits not in the set of interest')
+a_minus_overlap_data=data.frame(Count=result2[,'A']-result2[,'Overlap'],TFname=result2$name_percent,category='Non-hits in the set of interest')
 combined=rbind(overlap_data,b_minus_overlap_data,a_minus_overlap_data)
 combined[,'TFname']=factor(combined[,'TFname'],levels=overlap_data[order(overlap_data[,'Count']),'TFname'])
-sig_v=rep('Not sig enrichment',times=dim(combined)[1])
+sig_v=rep('Sig enrichment',times=dim(combined)[1])
 sig_v[which(as.character(combined$TFname) %in% as.character(sig_tfs))]='Sig enrichment'
 combined[,'category']=paste(sig_v,' | ',combined[,'category'],sep='')
 #combined=data.frame(combined,sig=sig_v)
